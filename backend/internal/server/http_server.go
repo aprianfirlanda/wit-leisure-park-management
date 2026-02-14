@@ -1,18 +1,19 @@
 package server
 
 import (
-	"fmt"
 	"wit-leisure-park/backend/internal/infrastructure/config"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/sirupsen/logrus"
 )
 
 type HTTPServer struct {
+	log *logrus.Logger
 	cfg *config.Config
 }
 
-func NewHTTPServer(cfg *config.Config) *HTTPServer {
-	return &HTTPServer{cfg: cfg}
+func NewHTTPServer(cfg *config.Config, log *logrus.Logger) *HTTPServer {
+	return &HTTPServer{log: log, cfg: cfg}
 }
 
 func (s *HTTPServer) Start() {
@@ -25,14 +26,16 @@ func (s *HTTPServer) Start() {
 
 	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {
+		s.log.Info("health check called")
+
 		return c.JSON(fiber.Map{
 			"status": "OK",
 		})
 	})
 
-	fmt.Println("🚀 HTTP server running on port:", port)
+	s.log.Infof("🚀 HTTP server running on port %s", port)
 
 	if err := app.Listen(":" + port); err != nil {
-		panic(err)
+		s.log.Fatal("failed to start server: ", err)
 	}
 }
