@@ -6,9 +6,12 @@ Copyright © 2026 NAME HERE aprianfirlanda@gmail.com
 */
 
 import (
+	"log"
 	"os"
-	"wit-leisure-park/backend/internal/config"
+	"wit-leisure-park/backend/internal/infrastructure/config"
+	"wit-leisure-park/backend/internal/infrastructure/persistence/postgres"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/cobra"
 )
 
@@ -19,6 +22,7 @@ var (
 		Long:  "Backend service for WIT Leisure Park Management System.",
 	}
 	cfg *config.Config
+	db  *pgxpool.Pool
 )
 
 func Execute() {
@@ -28,9 +32,15 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initApp)
 }
 
-func initConfig() {
+func initApp() {
 	cfg = config.Load()
+
+	var err error
+	db, err = postgres.NewPostgres(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"wit-leisure-park/backend/internal/config"
+	"wit-leisure-park/backend/internal/infrastructure/config"
 
 	"github.com/gofiber/fiber/v2"
 )

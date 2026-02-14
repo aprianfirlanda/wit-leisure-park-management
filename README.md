@@ -8,6 +8,8 @@ Fullstack application for managing WIT Leisure Park operations.
 - Go 1.25.5
 - Cobra CLI
 - Fiber
+- PostgreSQL 14
+- pgx (raw SQL driver)
 
 ---
 
@@ -25,7 +27,22 @@ https://go.dev/dl/
 
 ---
 
-## 2. Clone Repository
+## 2. Start PostgreSQL (Docker)
+From the root directory:
+```shell
+docker compose up -d
+```
+
+This will start:
+•	PostgreSQL 14
+•	Exposed on port 5432
+
+To stop:
+```shell
+docker compose stop
+```
+
+## 3. Clone Repository
 
 ```bash
 git clone https://github.com/aprianfirlanda/wit-leisure-park-management.git
@@ -34,7 +51,7 @@ cd wit-leisure-park-management/backend
 
 ---
 
-## 3. Install Dependencies
+## 4. Install Dependencies
 
 ```bash
 go mod tidy
@@ -42,7 +59,7 @@ go mod tidy
 
 ---
 
-## 4. Environment Configuration
+## 5. Environment Configuration
 Copy the example environment file:
 ```bash
 cp .env.example .env
@@ -51,11 +68,17 @@ cp .env.example .env
 Then adjust the values inside .env as needed:
 ```bash
 APP_PORT=8080
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=password
+DB_NAME=wit_db
 ```
 
 ---
 
-## 5. Run HTTP Server
+## 6. Run HTTP Server
 
 ```bash
 go run main.go http
