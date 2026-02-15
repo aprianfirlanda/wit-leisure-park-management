@@ -1,6 +1,7 @@
 package server
 
 import (
+	"wit-leisure-park/backend/internal/adapters/http/handler"
 	"wit-leisure-park/backend/internal/infrastructure/config"
 
 	"github.com/gofiber/fiber/v2"
@@ -8,12 +9,13 @@ import (
 )
 
 type HTTPServer struct {
-	log *logrus.Logger
-	cfg *config.Config
+	log         *logrus.Logger
+	cfg         *config.Config
+	authHandler *handler.AuthHandler
 }
 
-func NewHTTPServer(cfg *config.Config, log *logrus.Logger) *HTTPServer {
-	return &HTTPServer{log: log, cfg: cfg}
+func NewHTTPServer(cfg *config.Config, log *logrus.Logger, authHandler *handler.AuthHandler) *HTTPServer {
+	return &HTTPServer{log: log, cfg: cfg, authHandler: authHandler}
 }
 
 func (s *HTTPServer) Start() {
@@ -32,6 +34,10 @@ func (s *HTTPServer) Start() {
 			"status": "OK",
 		})
 	})
+
+	// Auth Routes
+	auth := app.Group("/auth")
+	auth.Post("/login", s.authHandler.Login)
 
 	s.log.Infof("🚀 HTTP server running on port %s", port)
 

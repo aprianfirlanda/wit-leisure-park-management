@@ -9,6 +9,8 @@ import (
 type Config struct {
 	AppPort string
 
+	JWTSecret string
+
 	DBHost string
 	DBPort string
 	DBUser string
@@ -27,6 +29,8 @@ func Load() *Config {
 
 	return &Config{
 		AppPort: viper.GetString("APP_PORT"),
+
+		JWTSecret: viper.GetString("JWT_SECRET"),
 
 		DBHost: viper.GetString("DB_HOST"),
 		DBPort: viper.GetString("DB_PORT"),
