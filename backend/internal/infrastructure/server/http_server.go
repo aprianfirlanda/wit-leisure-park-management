@@ -10,22 +10,25 @@ import (
 )
 
 type HTTPServer struct {
-	log            *logrus.Logger
-	cfg            *config.Config
-	authHandler    *handler.AuthHandler
-	managerHandler *handler.ManagerHandler
+	log              *logrus.Logger
+	cfg              *config.Config
+	authHandler      *handler.AuthHandler
+	managerHandler   *handler.ManagerHandler
+	zookeeperHandler *handler.ZookeeperHandler
 }
 
 func NewHTTPServer(
 	cfg *config.Config,
 	log *logrus.Logger, authHandler *handler.AuthHandler,
 	managerHandler *handler.ManagerHandler,
+	zookeeperHandler *handler.ZookeeperHandler,
 ) *HTTPServer {
 	return &HTTPServer{
-		log:            log,
-		cfg:            cfg,
-		authHandler:    authHandler,
-		managerHandler: managerHandler,
+		log:              log,
+		cfg:              cfg,
+		authHandler:      authHandler,
+		managerHandler:   managerHandler,
+		zookeeperHandler: zookeeperHandler,
 	}
 }
 
@@ -55,7 +58,7 @@ func (s *HTTPServer) Start() {
 		middleware.JWT(s.cfg.JWTSecret),
 	)
 
-	// Manager routes (JWT + Role)
+	// Manager routes
 	manager := api.Group("/managers",
 		middleware.RequireRole("MANAGER"),
 	)
@@ -64,6 +67,17 @@ func (s *HTTPServer) Start() {
 	manager.Get("/:public_id", s.managerHandler.FindByID)
 	manager.Put("/:public_id", s.managerHandler.Update)
 	manager.Delete("/:public_id", s.managerHandler.Delete)
+
+	// Zookeeper routes
+	zookeeper := api.Group("/zookeepers",
+		middleware.RequireRole("MANAGER"),
+	)
+
+	zookeeper.Post("/", s.zookeeperHandler.Create)
+	zookeeper.Get("/", s.zookeeperHandler.List)
+	zookeeper.Get("/:public_id", s.zookeeperHandler.FindByID)
+	zookeeper.Put("/:public_id", s.zookeeperHandler.Update)
+	zookeeper.Delete("/:public_id", s.zookeeperHandler.Delete)
 
 	s.log.Infof("🚀 HTTP server running on port %s", port)
 

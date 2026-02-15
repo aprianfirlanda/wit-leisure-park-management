@@ -25,7 +25,7 @@ type ManagerRepository interface {
 }
 
 type ManagerDTO struct {
-	PublicID string
-	Username string
-	Name     string
+	PublicID string `json:"public_id"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
 }
