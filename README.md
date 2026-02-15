@@ -69,6 +69,8 @@ Then adjust the values inside .env as needed:
 ```bash
 APP_PORT=8080
 
+JWT_SECRET=supersecretkey
+
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
@@ -78,12 +80,47 @@ DB_NAME=wit_db
 
 ---
 
+### 6. Database Migration
+
+This project uses SQL migration files located in:
+```text
+./migrations
+```
+
+#### Run Migration (Up)
+
+Apply all migrations:
+```shell
+go run . migrate up
+```
+
+#### Rollback Migration (Down)
+
+Rollback last migration:
+```shell
+go run . migrate down
+```
+
+---
+
+### 7. Seed Initial Data
+
+To insert default users:
+```shell
+go run . seed
+```
+
+This will create:
+
+| Role      | Username   | Password    |
+|-----------|------------|-------------|
+| MANAGER   | manager1   | password123 |
+| ZOOKEEPER | zookeeper1 | password123 |
+
+---
+
 ## 6. Run HTTP Server
 
-```bash
-go run main.go http
-```
-or
 ```bash
 go run . http
 ```

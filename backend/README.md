@@ -16,3 +16,8 @@ response:
   "expires_in": 3600
 }
 ```
+
+Use token in protected routes:
+```text
+Authorization: Bearer <access_token>
+```
