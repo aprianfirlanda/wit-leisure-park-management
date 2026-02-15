@@ -10,6 +10,11 @@ func NewUUIDGenerator() *UUIDGenerator {
 	return &UUIDGenerator{}
 }
 
-func (g *UUIDGenerator) NewID() string {
-	return uuid.New().String()
+func (g *UUIDGenerator) NewID() (string, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return "", err
+	}
+
+	return id.String(), nil
 }

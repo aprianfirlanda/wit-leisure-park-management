@@ -42,17 +42,13 @@ func runSeed(idGen *id.UUIDGenerator) error {
 	defer tx.Rollback(ctx)
 
 	password := "password123"
-	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	managerID, err := createManager(ctx, tx, idGen, password)
 	if err != nil {
 		return err
 	}
 
-	managerID, err := createManager(ctx, tx, idGen, string(hashed))
-	if err != nil {
-		return err
-	}
-
-	err = createZookeeper(ctx, tx, idGen, string(hashed), managerID)
+	err = createZookeeper(ctx, tx, idGen, password, managerID)
 	if err != nil {
 		return err
 	}
@@ -69,20 +65,28 @@ func createManager(
 	ctx context.Context,
 	tx pgx.Tx,
 	idGen *id.UUIDGenerator,
-	hashedPassword string,
+	rawPassword string,
 ) (int64, error) {
 
-	managerPublicID := idGen.NewID()
+	hashed, err := bcrypt.GenerateFromPassword([]byte(rawPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return 0, err
+	}
+
+	managerPublicID, err := idGen.NewID()
+	if err != nil {
+		return 0, err
+	}
 
 	var managerUserID int64
-	err := tx.QueryRow(ctx, `
+	err = tx.QueryRow(ctx, `
 		INSERT INTO users (public_id, username, password_hash, role)
 		VALUES ($1, $2, $3, 'MANAGER')
 		RETURNING id
 	`,
 		managerPublicID,
 		"manager1",
-		hashedPassword,
+		string(hashed),
 	).Scan(&managerUserID)
 
 	if err != nil {
@@ -109,21 +113,29 @@ func createZookeeper(
 	ctx context.Context,
 	tx pgx.Tx,
 	idGen *id.UUIDGenerator,
-	hashedPassword string,
+	rawPassword string,
 	managerUserID int64,
 ) error {
 
-	zookeeperPublicID := idGen.NewID()
+	hashed, err := bcrypt.GenerateFromPassword([]byte(rawPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	zookeeperPublicID, err := idGen.NewID()
+	if err != nil {
+		return err
+	}
 
 	var zookeeperUserID int64
-	err := tx.QueryRow(ctx, `
+	err = tx.QueryRow(ctx, `
 		INSERT INTO users (public_id, username, password_hash, role)
 		VALUES ($1, $2, $3, 'ZOOKEEPER')
 		RETURNING id
 	`,
 		zookeeperPublicID,
 		"zookeeper1",
-		hashedPassword,
+		string(hashed),
 	).Scan(&zookeeperUserID)
 
 	if err != nil {
