@@ -16,6 +16,7 @@ type HTTPServer struct {
 	managerHandler   *handler.ManagerHandler
 	zookeeperHandler *handler.ZookeeperHandler
 	cageHandler      *handler.CageHandler
+	animalHandler    *handler.AnimalHandler
 }
 
 func NewHTTPServer(
@@ -24,6 +25,7 @@ func NewHTTPServer(
 	managerHandler *handler.ManagerHandler,
 	zookeeperHandler *handler.ZookeeperHandler,
 	cageHandler *handler.CageHandler,
+	animalHandler *handler.AnimalHandler,
 ) *HTTPServer {
 	return &HTTPServer{
 		log:              log,
@@ -32,6 +34,7 @@ func NewHTTPServer(
 		managerHandler:   managerHandler,
 		zookeeperHandler: zookeeperHandler,
 		cageHandler:      cageHandler,
+		animalHandler:    animalHandler,
 	}
 }
 
@@ -87,6 +90,15 @@ func (s *HTTPServer) Start() {
 	cage.Get("/:public_id", s.cageHandler.FindByID)
 	cage.Put("/:public_id", s.cageHandler.Update)
 	cage.Delete("/:public_id", s.cageHandler.Delete)
+
+	animal := api.Group("/animals",
+		middleware.RequireRole("MANAGER"),
+	)
+	animal.Post("/", s.animalHandler.Create)
+	animal.Get("/", s.animalHandler.List)
+	animal.Get("/:public_id", s.animalHandler.FindByID)
+	animal.Put("/:public_id", s.animalHandler.Update)
+	animal.Delete("/:public_id", s.animalHandler.Delete)
 
 	s.log.Infof("🚀 HTTP server running on port %s", port)
 

@@ -148,10 +148,20 @@ requests:
 
 ## Master Data
 
+### Cages
 ```text
 POST   /api/cages
 GET    /api/cages
 GET    /api/cages/:public_id
 PUT    /api/cages/:public_id
 DELETE /api/cages/:public_id
+```
+
+### Animals
+```text
+POST   /api/animals
+GET    /api/animals
+GET    /api/animals/:public_id
+PUT    /api/animals/:public_id
+DELETE /api/animals/:public_id
 ```

@@ -1,1 +1,2 @@
+DROP TABLE IF EXISTS animals;
 DROP TABLE IF EXISTS cages;

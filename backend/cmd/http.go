@@ -25,6 +25,7 @@ var httpCmd = &cobra.Command{
 		managerRepo := repository.NewManagerRepository(db)
 		zookeeperRepo := repository.NewZookeeperRepository(db)
 		cageRepo := repository.NewCageRepository(db)
+		animalRepo := repository.NewAnimalRepository(db)
 
 		// --- Service ---
 		authService := application.NewAuthService(
@@ -34,15 +35,25 @@ var httpCmd = &cobra.Command{
 		managerService := application.NewManagerService(managerRepo, idGen)
 		zookeeperService := application.NewZookeeperService(zookeeperRepo, idGen)
 		cageService := application.NewCageService(cageRepo, idGen)
+		animalService := application.NewAnimalService(animalRepo, idGen)
 
 		// --- Handler ---
 		authHandler := handler.NewAuthHandler(log, authService)
 		managerHandler := handler.NewManagerHandler(log, managerService)
 		zookeeperHandler := handler.NewZookeeperHandler(log, zookeeperService)
 		cageHandler := handler.NewCageHandler(log, cageService)
+		animalHandler := handler.NewAnimalHandler(log, animalService)
 
 		// --- Server ---
-		app := server.NewHTTPServer(cfg, log, authHandler, managerHandler, zookeeperHandler, cageHandler)
+		app := server.NewHTTPServer(
+			cfg,
+			log,
+			authHandler,
+			managerHandler,
+			zookeeperHandler,
+			cageHandler,
+			animalHandler,
+		)
 		app.Start()
 	},
 }
