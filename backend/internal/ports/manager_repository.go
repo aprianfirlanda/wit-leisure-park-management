@@ -15,6 +15,8 @@ type ManagerRepository interface {
 
 	ListManagers(ctx context.Context) ([]ManagerDTO, error)
 
+	FindByPublicID(ctx context.Context, publicID string) (ManagerDTO, error)
+
 	UpdateManager(ctx context.Context, publicID string, name string) error
 
 	DeleteManager(ctx context.Context, publicID string) error

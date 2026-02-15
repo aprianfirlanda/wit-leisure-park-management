@@ -89,6 +89,31 @@ func (r *managerRepository) ListManagers(ctx context.Context) ([]ports.ManagerDT
 	return result, nil
 }
 
+func (r *managerRepository) FindByPublicID(
+	ctx context.Context,
+	publicID string,
+) (ports.ManagerDTO, error) {
+
+	var m ports.ManagerDTO
+
+	err := r.db.QueryRow(ctx, `
+		SELECT u.public_id, u.username, z.name
+		FROM users u
+		JOIN zookeeper_managers z ON z.user_id = u.id
+		WHERE u.public_id = $1 AND u.role = 'MANAGER'
+	`, publicID).Scan(
+		&m.PublicID,
+		&m.Username,
+		&m.Name,
+	)
+
+	if err != nil {
+		return ports.ManagerDTO{}, err
+	}
+
+	return m, nil
+}
+
 func (r *managerRepository) UpdateManager(ctx context.Context, publicID string, name string) error {
 	cmd, err := r.db.Exec(ctx, `
 		UPDATE zookeeper_managers

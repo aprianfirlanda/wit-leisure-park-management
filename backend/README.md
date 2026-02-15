@@ -62,7 +62,18 @@ response:
 ]
 ```
 
-### 3. PUT /api/managers/:public_id
+### 3. GET /api/managers/:public_id
+
+response:
+```json
+{
+  "public_id": "018f3c6a-...",
+  "username": "manager1",
+  "name": "Main Manager"
+}
+```
+
+### 4. PUT /api/managers/:public_id
 
 requests:
 ```json
@@ -72,7 +83,7 @@ requests:
 ```
 
 
-### 4. DELETE /api/managers/:public_id
+### 5. DELETE /api/managers/:public_id
 
 
 ## Manage Zookeeper Data

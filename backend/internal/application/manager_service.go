@@ -72,6 +72,13 @@ func (s *ManagerService) List(ctx context.Context) ([]ports.ManagerDTO, error) {
 	return s.repo.ListManagers(ctx)
 }
 
+func (s *ManagerService) FindByID(
+	ctx context.Context,
+	publicID string,
+) (ports.ManagerDTO, error) {
+	return s.repo.FindByPublicID(ctx, publicID)
+}
+
 func (s *ManagerService) Update(
 	ctx context.Context,
 	publicID string,

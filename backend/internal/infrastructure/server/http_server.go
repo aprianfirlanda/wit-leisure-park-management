@@ -61,6 +61,7 @@ func (s *HTTPServer) Start() {
 	)
 	manager.Post("/", s.managerHandler.Create)
 	manager.Get("/", s.managerHandler.List)
+	manager.Get("/:public_id", s.managerHandler.FindByID)
 	manager.Put("/:public_id", s.managerHandler.Update)
 	manager.Delete("/:public_id", s.managerHandler.Delete)
 

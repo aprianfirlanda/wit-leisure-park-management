@@ -61,6 +61,20 @@ func (h *ManagerHandler) List(c *fiber.Ctx) error {
 	return c.JSON(result)
 }
 
+func (h *ManagerHandler) FindByID(c *fiber.Ctx) error {
+	publicID := c.Params("public_id")
+
+	result, err := h.service.FindByID(c.Context(), publicID)
+	if err != nil {
+		h.log.Warn("manager not found: ", publicID)
+		return c.Status(404).JSON(fiber.Map{
+			"error": "manager not found",
+		})
+	}
+
+	return c.JSON(result)
+}
+
 func (h *ManagerHandler) Update(c *fiber.Ctx) error {
 	publicID := c.Params("public_id")
 
