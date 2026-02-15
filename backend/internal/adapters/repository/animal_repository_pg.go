@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"time"
 
 	"wit-leisure-park/backend/internal/ports"
 
@@ -21,7 +22,7 @@ func (r *animalRepository) Create(
 	ctx context.Context,
 	publicID, name, species string,
 	cagePublicID string,
-	dateOfBirth *string,
+	dateOfBirth *time.Time,
 ) (string, error) {
 
 	tx, err := r.db.Begin(ctx)
@@ -112,7 +113,7 @@ func (r *animalRepository) FindByID(
 func (r *animalRepository) Update(
 	ctx context.Context,
 	publicID, name, species, cagePublicID string,
-	dateOfBirth *string,
+	dateOfBirth *time.Time,
 ) error {
 
 	tx, err := r.db.Begin(ctx)

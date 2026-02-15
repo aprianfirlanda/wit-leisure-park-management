@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"time"
 	"wit-leisure-park/backend/internal/infrastructure/id"
 
 	"wit-leisure-park/backend/internal/ports"
@@ -22,7 +23,7 @@ func NewAnimalService(
 func (s *AnimalService) Create(
 	ctx context.Context,
 	name, species, cagePublicID string,
-	dateOfBirth *string,
+	dateOfBirth *time.Time,
 ) (ports.AnimalDTO, error) {
 
 	publicID, err := s.idGen.NewID()
@@ -65,7 +66,7 @@ func (s *AnimalService) FindByID(
 func (s *AnimalService) Update(
 	ctx context.Context,
 	publicID, name, species, cagePublicID string,
-	dateOfBirth *string,
+	dateOfBirth *time.Time,
 ) error {
 	return s.repo.Update(ctx, publicID, name, species, cagePublicID, dateOfBirth)
 }
