@@ -7,9 +7,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func JWTMiddleware(secret string) fiber.Handler {
+func JWT(secret string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {
 			return c.SendStatus(fiber.StatusUnauthorized)
@@ -25,7 +24,10 @@ func JWTMiddleware(secret string) fiber.Handler {
 			return c.SendStatus(fiber.StatusUnauthorized)
 		}
 
-		c.Locals("user", token.Claims)
+		claims := token.Claims.(jwt.MapClaims)
+
+		c.Locals("user_id", claims["sub"])
+		c.Locals("role", claims["role"])
 
 		return c.Next()
 	}
