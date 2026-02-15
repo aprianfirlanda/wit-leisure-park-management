@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS zookeepers;
+DROP TABLE IF EXISTS zookeeper_managers;
+DROP TABLE IF EXISTS users;
+DROP TYPE IF EXISTS user_role;
