@@ -15,6 +15,7 @@ type HTTPServer struct {
 	authHandler      *handler.AuthHandler
 	managerHandler   *handler.ManagerHandler
 	zookeeperHandler *handler.ZookeeperHandler
+	cageHandler      *handler.CageHandler
 }
 
 func NewHTTPServer(
@@ -22,6 +23,7 @@ func NewHTTPServer(
 	log *logrus.Logger, authHandler *handler.AuthHandler,
 	managerHandler *handler.ManagerHandler,
 	zookeeperHandler *handler.ZookeeperHandler,
+	cageHandler *handler.CageHandler,
 ) *HTTPServer {
 	return &HTTPServer{
 		log:              log,
@@ -29,6 +31,7 @@ func NewHTTPServer(
 		authHandler:      authHandler,
 		managerHandler:   managerHandler,
 		zookeeperHandler: zookeeperHandler,
+		cageHandler:      cageHandler,
 	}
 }
 
@@ -58,7 +61,6 @@ func (s *HTTPServer) Start() {
 		middleware.JWT(s.cfg.JWTSecret),
 	)
 
-	// Manager routes
 	manager := api.Group("/managers",
 		middleware.RequireRole("MANAGER"),
 	)
@@ -68,16 +70,23 @@ func (s *HTTPServer) Start() {
 	manager.Put("/:public_id", s.managerHandler.Update)
 	manager.Delete("/:public_id", s.managerHandler.Delete)
 
-	// Zookeeper routes
 	zookeeper := api.Group("/zookeepers",
 		middleware.RequireRole("MANAGER"),
 	)
-
 	zookeeper.Post("/", s.zookeeperHandler.Create)
 	zookeeper.Get("/", s.zookeeperHandler.List)
 	zookeeper.Get("/:public_id", s.zookeeperHandler.FindByID)
 	zookeeper.Put("/:public_id", s.zookeeperHandler.Update)
 	zookeeper.Delete("/:public_id", s.zookeeperHandler.Delete)
+
+	cage := api.Group("/cages",
+		middleware.RequireRole("MANAGER"),
+	)
+	cage.Post("/", s.cageHandler.Create)
+	cage.Get("/", s.cageHandler.List)
+	cage.Get("/:public_id", s.cageHandler.FindByID)
+	cage.Put("/:public_id", s.cageHandler.Update)
+	cage.Delete("/:public_id", s.cageHandler.Delete)
 
 	s.log.Infof("🚀 HTTP server running on port %s", port)
 

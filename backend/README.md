@@ -146,3 +146,12 @@ requests:
 
 ### 5. DELETE /api/zookeepers/:public_id
 
+## Master Data
+
+```text
+POST   /api/cages
+GET    /api/cages
+GET    /api/cages/:public_id
+PUT    /api/cages/:public_id
+DELETE /api/cages/:public_id
+```
