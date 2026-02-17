@@ -51,6 +51,22 @@ async function handle(
     body: req.method !== 'GET' ? await req.text() : undefined,
   })
 
+  if (backendRes.status === 401) {
+    const response = NextResponse.json(
+      { error: 'Session expired' },
+      { status: 401 }
+    )
+
+    // Clear cookie
+    response.cookies.set('access_token', '', {
+      httpOnly: true,
+      expires: new Date(0),
+      path: '/',
+    })
+
+    return response
+  }
+
   const body = await backendRes.text()
 
   return new NextResponse(body, {
