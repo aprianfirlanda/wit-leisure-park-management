@@ -76,9 +76,16 @@ func (r *zookeeperRepository) Create(
 
 func (r *zookeeperRepository) List(ctx context.Context) ([]ports.ZookeeperDTO, error) {
 	rows, err := r.db.Query(ctx, `
-		SELECT u.public_id, u.username, z.name
+		SELECT 
+			u.public_id,
+			u.username,
+			z.name,
+			m.public_id,
+			zm.name
 		FROM users u
 		JOIN zookeepers z ON z.user_id = u.id
+		JOIN users m ON z.manager_id = m.id
+		JOIN zookeeper_managers zm ON zm.user_id = m.id
 		WHERE u.role = 'ZOOKEEPER'
 	`)
 	if err != nil {
@@ -90,7 +97,13 @@ func (r *zookeeperRepository) List(ctx context.Context) ([]ports.ZookeeperDTO, e
 
 	for rows.Next() {
 		var z ports.ZookeeperDTO
-		if err := rows.Scan(&z.PublicID, &z.Username, &z.Name); err != nil {
+		if err := rows.Scan(
+			&z.PublicID,
+			&z.Username,
+			&z.Name,
+			&z.ManagerID,
+			&z.ManagerName,
+		); err != nil {
 			return nil, err
 		}
 		result = append(result, z)
@@ -107,14 +120,23 @@ func (r *zookeeperRepository) FindByID(
 	var z ports.ZookeeperDTO
 
 	err := r.db.QueryRow(ctx, `
-		SELECT u.public_id, u.username, z.name
+		SELECT 
+			u.public_id,
+			u.username,
+			z.name,
+			m.public_id,
+			zm.name
 		FROM users u
 		JOIN zookeepers z ON z.user_id = u.id
+		JOIN users m ON z.manager_id = m.id
+		JOIN zookeeper_managers zm ON zm.user_id = m.id
 		WHERE u.public_id = $1 AND u.role = 'ZOOKEEPER'
 	`, publicID).Scan(
 		&z.PublicID,
 		&z.Username,
 		&z.Name,
+		&z.ManagerID,
+		&z.ManagerName,
 	)
 
 	if err != nil {

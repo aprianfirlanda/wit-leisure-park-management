@@ -13,6 +13,8 @@ type Zookeeper = {
   public_id: string
   username: string
   name: string
+  manager_public_id: string
+  manager_name: string
 }
 
 export default function ZookeepersPage() {
@@ -165,23 +167,25 @@ export default function ZookeepersPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Zookeeper Management</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Zookeeper Management
+        </h1>
 
         <div className="flex gap-3">
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3 top-2.5 size-5 text-gray-400" />
             <input
-              placeholder="Search..."
+              placeholder="Search zookeeper..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 border rounded-md text-sm"
+              className="pl-10 pr-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
           <button
             onClick={() => setOpenCreate(true)}
-            className="flex items-center gap-2 bg-indigo-600 px-4 py-2 text-sm text-white rounded-md"
+            className="flex items-center gap-2 bg-indigo-600 px-4 py-2 text-sm text-white rounded-md hover:bg-indigo-500 transition"
           >
             <PlusIcon className="size-5" />
             Add Zookeeper
@@ -190,37 +194,69 @@ export default function ZookeepersPage() {
       </div>
 
       {/* Table */}
-      <div className="mt-8 bg-white rounded-xl border overflow-hidden">
+      <div className="mt-8 bg-white rounded-xl border shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-6 text-gray-500">Loading...</div>
+          <div className="p-6 space-y-3 animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-1/3" />
+            <div className="h-4 bg-gray-200 rounded w-1/2" />
+            <div className="h-4 bg-gray-200 rounded w-1/4" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="p-10 text-center text-gray-500">
+            No zookeepers found.
+          </div>
         ) : (
-          <table className="w-full">
-            <thead className="bg-gray-50">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="px-6 py-3 text-left">Username</th>
-              <th className="px-6 py-3 text-left">Name</th>
-              <th className="px-6 py-3 text-right">Action</th>
+              <th className="px-6 py-3 text-left font-semibold text-gray-600">
+                Username
+              </th>
+              <th className="px-6 py-3 text-left font-semibold text-gray-600">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left font-semibold text-gray-600">
+                Manager
+              </th>
+              <th className="px-6 py-3 text-right font-semibold text-gray-600">
+                Action
+              </th>
             </tr>
             </thead>
             <tbody>
             {filtered.map((z) => (
-              <tr key={z.public_id} className="border-t">
-                <td className="px-6 py-4">{z.username}</td>
-                <td className="px-6 py-4">{z.name}</td>
+              <tr
+                key={z.public_id}
+                className="border-b hover:bg-gray-50 transition"
+              >
+                <td className="px-6 py-4 font-medium text-gray-900">
+                  {z.username}
+                </td>
+
+                <td className="px-6 py-4 text-gray-700">
+                  {z.name}
+                </td>
+
+                <td className="px-6 py-4">
+              <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600">
+                {z.manager_name}
+              </span>
+                </td>
+
                 <td className="px-6 py-4 text-right space-x-3">
                   <button
                     onClick={() => {
                       setEditData(z)
                       setOpenEdit(true)
                     }}
-                    className="text-indigo-600"
+                    className="text-indigo-600 hover:text-indigo-800 transition"
                   >
                     <PencilIcon className="size-5 inline" />
                   </button>
 
                   <button
                     onClick={() => setDeleteId(z.public_id)}
-                    className="text-red-600"
+                    className="text-red-600 hover:text-red-800 transition"
                   >
                     <TrashIcon className="size-5 inline" />
                   </button>
@@ -329,12 +365,18 @@ function Modal({
   onClose: () => void
 }) {
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl animate-fadeIn">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-semibold text-lg">{title}</h2>
-          <button onClick={onClose}>✕</button>
+          <h2 className="font-semibold text-lg text-gray-900">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-700"
+          >
+            ✕
+          </button>
         </div>
+
         {children}
       </div>
     </div>

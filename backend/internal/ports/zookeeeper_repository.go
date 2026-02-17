@@ -24,7 +24,9 @@ type ZookeeperRepository interface {
 }
 
 type ZookeeperDTO struct {
-	PublicID string `json:"public_id"`
-	Username string `json:"username"`
-	Name     string `json:"name"`
+	PublicID    string `json:"public_id"`
+	Username    string `json:"username"`
+	Name        string `json:"name"`
+	ManagerID   string `json:"manager_public_id"`
+	ManagerName string `json:"manager_name"`
 }

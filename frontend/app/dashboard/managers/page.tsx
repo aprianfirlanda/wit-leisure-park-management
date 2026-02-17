@@ -165,23 +165,25 @@ export default function ManagersPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Manager Management</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Manager Management
+        </h1>
 
         <div className="flex gap-3">
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3 top-2.5 size-5 text-gray-400" />
             <input
-              placeholder="Search..."
+              placeholder="Search manager..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 border rounded-md text-sm"
+              className="pl-10 pr-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
           <button
             onClick={() => setOpenCreate(true)}
-            className="flex items-center gap-2 bg-indigo-600 px-4 py-2 text-sm text-white rounded-md"
+            className="flex items-center gap-2 bg-indigo-600 px-4 py-2 text-sm text-white rounded-md hover:bg-indigo-500 transition"
           >
             <PlusIcon className="size-5" />
             Add Manager
@@ -338,12 +340,18 @@ function Modal({
   onClose: () => void
 }) {
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl animate-fadeIn">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-semibold text-lg">{title}</h2>
-          <button onClick={onClose}>✕</button>
+          <h2 className="font-semibold text-lg text-gray-900">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-700"
+          >
+            ✕
+          </button>
         </div>
+
         {children}
       </div>
     </div>
