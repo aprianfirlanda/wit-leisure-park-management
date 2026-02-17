@@ -218,3 +218,33 @@ Frontend runs at:
 ```text
 http://localhost:3000
 ```
+
+# API Testing with Postman
+
+This project includes a ready-to-use Postman collection and environment.
+
+## Included Files
+
+Located in the project root:
+- WIT - Leisure Park.postman_collection.json  ￼
+- WIT - Leisure Park Environment.postman_environment.json  ￼
+
+## Import to Postman
+
+### 1. Import Collection
+
+1.	Open Postman
+2.	Click Import
+3.	Select:
+```text
+WIT - Leisure Park.postman_collection.json
+```
+
+### 2. Import Environment
+
+1.	Click Import
+2.	Select:
+```text
+WIT - Leisure Park Environment.postman_environment.json
+```
+3.	Set the environment as Active
