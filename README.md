@@ -2,6 +2,23 @@
 
 Fullstack application for managing WIT Leisure Park operations.
 
+This project consists of:
+- Backend API (Go + Fiber + PostgreSQL)
+- Frontend Web App (Next.js + Tailwind + Headless UI)
+
+---
+
+## Architecture Overview
+- Backend: REST API with JWT authentication
+- Frontend: Next.js App Router
+- Authentication: JWT stored in HTTP-only cookie
+- Authorization: Role-based access (MANAGER, ZOOKEEPER)
+- Database: PostgreSQL 14
+- Clean Architecture / Hexagonal pattern (Backend)
+
+---
+
+
 ## Tech Stack
 
 ### Backend
@@ -11,9 +28,40 @@ Fullstack application for managing WIT Leisure Park operations.
 - PostgreSQL 14
 - pgx (raw SQL driver)
 
+### Frontend
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+- Headless UI
+- Heroicons
+- HTTP-only cookie authentication
+- Next.js Proxy Route for backend communication
+
 ---
 
-# Backend Setup
+## Project Structure
+
+```text
+wit-leisure-park-management/
+│
+├── backend/
+│   ├── cmd/
+│   ├── internal/
+│   ├── migrations/
+│   └── main.go
+│
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   ├── middleware.ts
+│   └── next.config.ts
+│
+└── docker-compose.yml
+```
+
+---
+
+# Backend Setup (Go)
 
 ## 1. Install Go
 
@@ -42,11 +90,10 @@ To stop:
 docker compose stop
 ```
 
-## 3. Clone Repository
+## 3. Navigate to Backend
 
 ```bash
-git clone https://github.com/aprianfirlanda/wit-leisure-park-management.git
-cd wit-leisure-park-management/backend
+cd ./backend
 ```
 
 ---
@@ -133,4 +180,41 @@ http://localhost:8080
 Health check endpoint:
 ```text
 GET /health
+```
+
+---
+
+# Frontend Setup (Next.js)
+
+## 1. Navigate to Frontend
+```shell
+cd ./frontend
+```
+
+---
+
+## 2. Install Dependencies
+```shell
+npm install
+```
+
+---
+
+## 3. Environment Configuration
+
+Create .env.local:
+NEXT_PUBLIC_APP_NAME=WIT Leisure Park
+BACKEND_URL=http://localhost:8080
+
+---
+
+## 4. Run Frontend
+
+```shell
+npm run dev
+```
+
+Frontend runs at:
+```text
+http://localhost:3000
 ```
