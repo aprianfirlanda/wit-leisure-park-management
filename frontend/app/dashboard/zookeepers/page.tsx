@@ -5,7 +5,7 @@ import {
   PlusIcon,
   TrashIcon,
   PencilIcon,
-  MagnifyingGlassIcon,
+  MagnifyingGlassIcon, XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { useToast } from '@/components/ui/ToastContext'
 
@@ -148,6 +148,13 @@ export default function ZookeepersPage() {
       const res = await fetch(`/api/proxy/zookeepers/${deleteId}`, {
         method: 'DELETE',
       })
+
+      if (res.status === 204) {
+        showToast('Zookeeper deleted successfully', 'success')
+        setDeleteId(null)
+        fetchZookeepers()
+        return
+      }
 
       const data = await res.json()
 
@@ -373,7 +380,7 @@ function Modal({
             onClick={onClose}
             className="text-gray-400 hover:text-gray-700"
           >
-            ✕
+            <XMarkIcon className="size-5" />
           </button>
         </div>
 

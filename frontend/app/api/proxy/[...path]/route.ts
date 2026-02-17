@@ -67,6 +67,12 @@ async function handle(
     return response
   }
 
+  if (backendRes.status === 204) {
+    return new NextResponse(null, {
+      status: 204,
+    })
+  }
+
   const body = await backendRes.text()
 
   return new NextResponse(body, {

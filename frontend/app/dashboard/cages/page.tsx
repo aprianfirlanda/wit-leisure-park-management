@@ -5,7 +5,7 @@ import {
   PlusIcon,
   TrashIcon,
   PencilIcon,
-  MagnifyingGlassIcon,
+  MagnifyingGlassIcon, XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { useToast } from '@/components/ui/ToastContext'
 
@@ -143,6 +143,13 @@ export default function CagesPage() {
       const res = await fetch(`/api/proxy/cages/${deleteId}`, {
         method: 'DELETE',
       })
+
+      if (res.status === 204) {
+        showToast('Cage deleted successfully', 'success')
+        setDeleteId(null)
+        fetchCages()
+        return
+      }
 
       const data = await res.json()
 
@@ -349,7 +356,7 @@ function Modal({
             onClick={onClose}
             className="text-gray-400 hover:text-gray-700"
           >
-            ✕
+            <XMarkIcon className="size-5" />
           </button>
         </div>
         {children}
