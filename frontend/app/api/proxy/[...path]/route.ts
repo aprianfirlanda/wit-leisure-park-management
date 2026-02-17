@@ -21,6 +21,13 @@ export async function PUT(
   return handle(req, context)
 }
 
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ path?: string[] }> }
+) {
+  return handle(req, context)
+}
+
 export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ path?: string[] }> }

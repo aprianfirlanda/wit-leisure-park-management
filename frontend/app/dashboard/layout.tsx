@@ -32,6 +32,7 @@ const navigation: NavItem[] = [
   { name: 'Zookeepers', href: '/dashboard/zookeepers', icon: UsersIcon, role: 'MANAGER' },
   { name: 'Cages', href: '/dashboard/cages', icon: BuildingOfficeIcon, role: 'MANAGER' },
   { name: 'Animals', href: '/dashboard/animals', icon: ClipboardDocumentListIcon, role: 'MANAGER' },
+  { name: 'Tasks', href: '/dashboard/tasks', icon: ClipboardDocumentListIcon },
 ]
 
 function classNames(...classes: string[]) {

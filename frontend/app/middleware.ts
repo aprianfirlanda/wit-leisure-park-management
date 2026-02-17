@@ -65,6 +65,12 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith('/dashboard/animals') && role !== 'MANAGER') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
+
+    if (pathname.startsWith('/dashboard/tasks')) {
+      if (role !== 'MANAGER' && role !== 'ZOOKEEPER') {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+    }
   }
 
   return NextResponse.next()
