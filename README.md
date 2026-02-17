@@ -202,9 +202,16 @@ npm install
 
 ## 3. Environment Configuration
 
-Create .env.local:
+Copy the example environment file:
+```bash
+cp example.env.local .env.local
+```
+
+Then adjust the values inside .env as needed:
+```text
 NEXT_PUBLIC_APP_NAME=WIT Leisure Park
 BACKEND_URL=http://localhost:8080
+```
 
 ---
 
@@ -247,4 +254,3 @@ WIT - Leisure Park.postman_collection.json
 ```text
 WIT - Leisure Park Environment.postman_environment.json
 ```
-3.	Set the environment as Active
