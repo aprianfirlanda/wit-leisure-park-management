@@ -93,8 +93,7 @@ func (r *zookeeperRepository) List(ctx context.Context) ([]ports.ZookeeperDTO, e
 	}
 	defer rows.Close()
 
-	var result []ports.ZookeeperDTO
-
+	result := make([]ports.ZookeeperDTO, 0)
 	for rows.Next() {
 		var z ports.ZookeeperDTO
 		if err := rows.Scan(

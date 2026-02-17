@@ -77,7 +77,7 @@ func (r *managerRepository) ListManagers(ctx context.Context) ([]ports.ManagerDT
 	}
 	defer rows.Close()
 
-	var result []ports.ManagerDTO
+	result := make([]ports.ManagerDTO, 0)
 	for rows.Next() {
 		var m ports.ManagerDTO
 		if err := rows.Scan(&m.PublicID, &m.Username, &m.Name); err != nil {

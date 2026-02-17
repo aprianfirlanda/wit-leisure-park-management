@@ -64,7 +64,7 @@ func (r *animalRepository) List(ctx context.Context) ([]ports.AnimalDTO, error) 
 	}
 	defer rows.Close()
 
-	var result []ports.AnimalDTO
+	result := make([]ports.AnimalDTO, 0)
 
 	for rows.Next() {
 		var a ports.AnimalDTO

@@ -54,7 +54,7 @@ func (r *cageRepository) List(ctx context.Context) ([]ports.CageDTO, error) {
 	}
 	defer rows.Close()
 
-	var result []ports.CageDTO
+	result := make([]ports.CageDTO, 0)
 
 	for rows.Next() {
 		var c ports.CageDTO
