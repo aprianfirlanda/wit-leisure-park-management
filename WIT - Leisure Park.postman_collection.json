@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "ca511939-bf10-4252-99e6-4113d9b9f76c",
+    "_postman_id": "70eeb06c-9287-40d5-9333-14943241f0c5",
     "name": "WIT - Leisure Park",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "9241110",
-    "_collection_link": "https://go.postman.co/collection/9241110-ca511939-bf10-4252-99e6-4113d9b9f76c?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/9241110-70eeb06c-9287-40d5-9333-14943241f0c5?source=collection_link"
   },
   "item": [
     {
@@ -961,6 +961,240 @@
                 "api",
                 "animals",
                 "{{ANIMAL_PUBLIC_ID}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Task",
+      "item": [
+        {
+          "name": "Create",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "if (response.public_id) {",
+                  "    pm.environment.set(\"TASK_PUBLIC_ID\", response.public_id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const baseUrl = pm.environment.get(\"BASE_URL\");",
+                  "const token = pm.environment.get(\"MANAGER_ACCESS_TOKEN\");",
+                  "",
+                  "pm.sendRequest({",
+                  "    url: baseUrl + \"/api/zookeepers\",",
+                  "    method: \"POST\",",
+                  "    header: {",
+                  "        \"Content-Type\": \"application/json\",",
+                  "        \"Authorization\": \"Bearer \" + token",
+                  "    },",
+                  "    body: {",
+                  "        mode: \"raw\",",
+                  "        raw: JSON.stringify({",
+                  "            username: \"AUTO-ZOOKEEPER-\" + Date.now(),",
+                  "            password: \"password\",",
+                  "            name: \"AUTO ZOOKEEPER \" + Date.now()",
+                  "        })",
+                  "    }",
+                  "}, function (err, res) {",
+                  "",
+                  "    const zoo = res.json();",
+                  "    pm.environment.set(\"ZOOKEEPER_PUBLIC_ID_CREATE_TASK\", zoo.public_id);",
+                  "",
+                  "    // Create cage after zoo created",
+                  "    pm.sendRequest({",
+                  "        url: baseUrl + \"/api/cages\",",
+                  "        method: \"POST\",",
+                  "        header: {",
+                  "            \"Content-Type\": \"application/json\",",
+                  "            \"Authorization\": \"Bearer \" + token",
+                  "        },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({",
+                  "                code: \"AUTO-CAGE-\" + Date.now(),",
+                  "                location: \"Auto Generated\"",
+                  "            })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "",
+                  "        const cage = res.json();",
+                  "        pm.environment.set(\"CAGE_PUBLIC_ID_CREATE_TASK\", cage.public_id);",
+                  "",
+                  "        // Create animal AFTER cage ready",
+                  "        pm.sendRequest({",
+                  "            url: baseUrl + \"/api/animals\",",
+                  "            method: \"POST\",",
+                  "            header: {",
+                  "                \"Content-Type\": \"application/json\",",
+                  "                \"Authorization\": \"Bearer \" + token",
+                  "            },",
+                  "            body: {",
+                  "                mode: \"raw\",",
+                  "                raw: JSON.stringify({",
+                  "                    name: \"Auto Task \" + Date.now(),",
+                  "                    species: \"Auto Animal\",",
+                  "                    cage_public_id: cage.public_id,",
+                  "                    date_of_birth: \"2020-01-01\"",
+                  "                })",
+                  "            }",
+                  "        }, function (err, res) {",
+                  "",
+                  "            const animal = res.json();",
+                  "            pm.environment.set(\"ANIMAL_PUBLIC_ID_CREATE_TASK\", animal.public_id);",
+                  "",
+                  "            console.log(\"All created successfully\");",
+                  "        });",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{MANAGER_ACCESS_TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Feed Lion\",\n  \"description\": \"Morning feeding task\",\n  \"zookeeper_public_id\": \"{{ZOOKEEPER_PUBLIC_ID_CREATE_TASK}}\",\n  \"animal_public_id\": \"{{ANIMAL_PUBLIC_ID_CREATE_TASK}}\",\n  \"due_date\": \"2026-02-20\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/tasks",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "tasks"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{MANAGER_ACCESS_TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/tasks",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "tasks"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update status by public id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{MANAGER_ACCESS_TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"DONE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/tasks/{{TASK_PUBLIC_ID}}/status",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "{{TASK_PUBLIC_ID}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete by public id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{MANAGER_ACCESS_TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/tasks/{{TASK_PUBLIC_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "api",
+                "tasks",
+                "{{TASK_PUBLIC_ID}}"
               ]
             }
           },
