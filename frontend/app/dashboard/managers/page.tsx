@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react'
 import {
   PlusIcon,
   TrashIcon,
+  PencilIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline'
+import { useToast } from '@/components/ui/ToastContext'
 
 type Manager = {
   public_id: string
@@ -13,9 +16,21 @@ type Manager = {
 }
 
 export default function ManagersPage() {
+  const { showToast } = useToast()
+
   const [managers, setManagers] = useState<Manager[]>([])
+  const [filtered, setFiltered] = useState<Manager[]>([])
   const [loading, setLoading] = useState(true)
-  const [open, setOpen] = useState(false)
+
+  const [openCreate, setOpenCreate] = useState(false)
+  const [openEdit, setOpenEdit] = useState(false)
+
+  const [search, setSearch] = useState('')
+  const [creating, setCreating] = useState(false)
+  const [updating, setUpdating] = useState(false)
+
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [editData, setEditData] = useState<Manager | null>(null)
 
   const [form, setForm] = useState({
     username: '',
@@ -24,12 +39,20 @@ export default function ManagersPage() {
   })
 
   async function fetchManagers() {
+    setLoading(true)
     try {
       const res = await fetch('/api/proxy/managers')
       const data = await res.json()
+
+      if (!res.ok) {
+        showToast(data.error || 'Failed to fetch managers', 'error')
+        return
+      }
+
       setManagers(data)
-    } catch (err) {
-      console.error(err)
+      setFiltered(data)
+    } catch {
+      showToast('Network error', 'error')
     } finally {
       setLoading(false)
     }
@@ -39,82 +62,165 @@ export default function ManagersPage() {
     fetchManagers()
   }, [])
 
+  useEffect(() => {
+    const result = managers.filter(
+      (m) =>
+        m.username.toLowerCase().includes(search.toLowerCase()) ||
+        m.name.toLowerCase().includes(search.toLowerCase())
+    )
+    setFiltered(result)
+  }, [search, managers])
+
+  // CREATE
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
+    setCreating(true)
 
-    await fetch('/api/proxy/managers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
+    try {
+      const res = await fetch('/api/proxy/managers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
 
-    setForm({ username: '', password: '', name: '' })
-    setOpen(false)
-    fetchManagers()
+      const data = await res.json()
+
+      if (!res.ok) {
+        showToast(data.error || 'Create failed', 'error')
+        return
+      }
+
+      showToast('Manager created successfully', 'success')
+
+      setForm({ username: '', password: '', name: '' })
+      setOpenCreate(false)
+      fetchManagers()
+    } catch {
+      showToast('Unexpected error occurred', 'error')
+    } finally {
+      setCreating(false)
+    }
   }
 
-  async function handleDelete(id: string) {
-    await fetch(`/api/proxy/managers/${id}`, {
-      method: 'DELETE',
-    })
+  // UPDATE
+  async function handleUpdate(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editData) return
 
-    fetchManagers()
+    setUpdating(true)
+
+    try {
+      const res = await fetch(
+        `/api/proxy/managers/${editData.public_id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: editData.name }),
+        }
+      )
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        showToast(data.error || 'Update failed', 'error')
+        return
+      }
+
+      showToast('Manager updated successfully', 'success')
+
+      setOpenEdit(false)
+      setEditData(null)
+      fetchManagers()
+    } catch {
+      showToast('Unexpected error occurred', 'error')
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  // DELETE
+  async function confirmDelete() {
+    if (!deleteId) return
+
+    try {
+      const res = await fetch(`/api/proxy/managers/${deleteId}`, {
+        method: 'DELETE',
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        showToast(data.error || 'Delete failed', 'error')
+        return
+      }
+
+      showToast('Manager deleted successfully', 'success')
+      setDeleteId(null)
+      fetchManagers()
+    } catch {
+      showToast('Unexpected error occurred', 'error')
+    }
   }
 
   return (
     <div>
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Manager Management
-        </h1>
+        <h1 className="text-2xl font-semibold">Manager Management</h1>
 
-        <button
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
-        >
-          <PlusIcon className="size-5" />
-          Add Manager
-        </button>
+        <div className="flex gap-3">
+          <div className="relative">
+            <MagnifyingGlassIcon className="absolute left-3 top-2.5 size-5 text-gray-400" />
+            <input
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 pr-4 py-2 border rounded-md text-sm"
+            />
+          </div>
+
+          <button
+            onClick={() => setOpenCreate(true)}
+            className="flex items-center gap-2 bg-indigo-600 px-4 py-2 text-sm text-white rounded-md"
+          >
+            <PlusIcon className="size-5" />
+            Add Manager
+          </button>
+        </div>
       </div>
 
       {/* Table */}
-      <div className="mt-8 bg-white shadow-sm border rounded-xl overflow-hidden">
+      <div className="mt-8 bg-white rounded-xl border overflow-hidden">
         {loading ? (
-          <div className="p-6 text-gray-500">Loading managers...</div>
-        ) : managers.length === 0 ? (
-          <div className="p-6 text-gray-500">No managers found.</div>
+          <div className="p-6 text-gray-500">Loading...</div>
         ) : (
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="w-full">
             <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                Username
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">
-                Name
-              </th>
-              <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">
-                Action
-              </th>
+              <th className="px-6 py-3 text-left">Username</th>
+              <th className="px-6 py-3 text-left">Name</th>
+              <th className="px-6 py-3 text-right">Action</th>
             </tr>
             </thead>
-
-            <tbody className="divide-y divide-gray-100">
-            {managers.map((manager) => (
-              <tr key={manager.public_id}>
-                <td className="px-6 py-4 text-sm text-gray-900">
-                  {manager.username}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-900">
-                  {manager.name}
-                </td>
-                <td className="px-6 py-4 text-right">
+            <tbody>
+            {filtered.map((manager) => (
+              <tr key={manager.public_id} className="border-t">
+                <td className="px-6 py-4">{manager.username}</td>
+                <td className="px-6 py-4">{manager.name}</td>
+                <td className="px-6 py-4 text-right space-x-3">
                   <button
-                    onClick={() =>
-                      handleDelete(manager.public_id)
-                    }
-                    className="text-red-600 hover:text-red-800"
+                    onClick={() => {
+                      setEditData(manager)
+                      setOpenEdit(true)
+                    }}
+                    className="text-indigo-600"
+                  >
+                    <PencilIcon className="size-5 inline" />
+                  </button>
+
+                  <button
+                    onClick={() => setDeleteId(manager.public_id)}
+                    className="text-red-600"
                   >
                     <TrashIcon className="size-5 inline" />
                   </button>
@@ -126,78 +232,120 @@ export default function ManagersPage() {
         )}
       </div>
 
-      {/* Modal */}
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Create New Manager
-            </h2>
-
-            <form onSubmit={handleCreate} className="mt-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Username
-                </label>
-                <input
-                  required
-                  value={form.username}
-                  onChange={(e) =>
-                    setForm({ ...form, username: e.target.value })
-                  }
-                  className="mt-1 w-full rounded-md border px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm({ ...form, password: e.target.value })
-                  }
-                  className="mt-1 w-full rounded-md border px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Name
-                </label>
-                <input
-                  required
-                  value={form.name}
-                  onChange={(e) =>
-                    setForm({ ...form, name: e.target.value })
-                  }
-                  className="mt-1 w-full rounded-md border px-3 py-2"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="text-sm text-gray-600"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  className="rounded-md bg-indigo-600 px-4 py-2 text-sm text-white"
-                >
-                  Create
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      {/* CREATE MODAL */}
+      {openCreate && (
+        <Modal
+          title="Create Manager"
+          onClose={() => setOpenCreate(false)}
+        >
+          <form onSubmit={handleCreate} className="space-y-4">
+            <input
+              placeholder="Username"
+              required
+              value={form.username}
+              onChange={(e) =>
+                setForm({ ...form, username: e.target.value })
+              }
+              className="w-full border rounded-md px-3 py-2"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              required
+              value={form.password}
+              onChange={(e) =>
+                setForm({ ...form, password: e.target.value })
+              }
+              className="w-full border rounded-md px-3 py-2"
+            />
+            <input
+              placeholder="Full Name"
+              required
+              value={form.name}
+              onChange={(e) =>
+                setForm({ ...form, name: e.target.value })
+              }
+              className="w-full border rounded-md px-3 py-2"
+            />
+            <button
+              disabled={creating}
+              className="w-full bg-indigo-600 text-white py-2 rounded-md"
+            >
+              {creating ? 'Creating...' : 'Create'}
+            </button>
+          </form>
+        </Modal>
       )}
+
+      {/* EDIT MODAL */}
+      {openEdit && editData && (
+        <Modal
+          title="Edit Manager"
+          onClose={() => setOpenEdit(false)}
+        >
+          <form onSubmit={handleUpdate} className="space-y-4">
+            <input
+              value={editData.username}
+              disabled
+              className="w-full border rounded-md px-3 py-2 bg-gray-100"
+            />
+            <input
+              value={editData.name}
+              onChange={(e) =>
+                setEditData({ ...editData, name: e.target.value })
+              }
+              className="w-full border rounded-md px-3 py-2"
+            />
+            <button
+              disabled={updating}
+              className="w-full bg-indigo-600 text-white py-2 rounded-md"
+            >
+              {updating ? 'Updating...' : 'Update'}
+            </button>
+          </form>
+        </Modal>
+      )}
+
+      {/* DELETE MODAL */}
+      {deleteId && (
+        <Modal
+          title="Delete Manager?"
+          onClose={() => setDeleteId(null)}
+        >
+          <div className="space-y-4 text-center">
+            <p>This action cannot be undone.</p>
+            <button
+              onClick={confirmDelete}
+              className="w-full bg-red-600 text-white py-2 rounded-md"
+            >
+              Confirm Delete
+            </button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  )
+}
+
+/* Reusable Modal */
+function Modal({
+                 title,
+                 children,
+                 onClose,
+               }: {
+  title: string
+  children: React.ReactNode
+  onClose: () => void
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="font-semibold text-lg">{title}</h2>
+          <button onClick={onClose}>✕</button>
+        </div>
+        {children}
+      </div>
     </div>
   )
 }

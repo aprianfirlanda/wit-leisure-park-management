@@ -17,6 +17,7 @@ import {
   XMarkIcon,
   ArrowRightStartOnRectangleIcon,
 } from '@heroicons/react/24/outline'
+import {ToastProvider} from "@/components/ui/ToastContext";
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
@@ -144,7 +145,9 @@ export default function DashboardLayout({
         </div>
 
         <main className="flex-1 overflow-y-auto p-6">
-          {children}
+          <ToastProvider >
+            {children}
+          </ToastProvider>
         </main>
       </div>
     </div>
